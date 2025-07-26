@@ -22,3 +22,11 @@ func (my *MonthYear) UnmarshalJSON(b []byte) error {
 func (my MonthYear) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + my.Format("01-2006") + `"`), nil
 }
+
+func MustParseMonthYear(s string) MonthYear {
+	t, err := time.Parse("01-2006", s)
+	if err != nil {
+		panic(err)
+	}
+	return MonthYear{Time: t}
+}

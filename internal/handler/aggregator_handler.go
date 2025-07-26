@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	_ "subscription-aggregator/docs"
 	"subscription-aggregator/internal/model"
 	"subscription-aggregator/internal/repository"
 	"time"
@@ -13,23 +14,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func isUniqueServiceName(excludedID int, userID uuid.UUID, serviceName string) (bool, error) {
-	var sameSubsCount int64
-	err := repository.DB.Model(&model.Subscription{}).
-		Where("user_id = ?", userID).
-		Where("LOWER(service_name) = LOWER(?)", serviceName).
-		Where("id <> ?", excludedID).
-		Count(&sameSubsCount).
-		Error
-	if err != nil {
-		return false, err
-	} else if sameSubsCount != 0 {
-		return false, nil
-	}
-
-	return true, nil
-}
-
+// @Summary	Создание подписки
+// @Accept		json
+// @Produce	json
+// @Param		subscription	body		docs.SubscriptionExample	true	"Данные подписки"
+// @Success	200				{object}	docs.MessageResponse
+// @Failure	400				{object}	docs.ErrorResponse
+// @Failure	500				{object}	docs.ErrorResponse
+// @Router		/create [post]
 func CreateSubscription(c *gin.Context) {
 	var sub model.Subscription
 
@@ -37,7 +29,7 @@ func CreateSubscription(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&sub); err != nil {
 		log.Printf("[CreateSubscription] JSON bind error: %v\n", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to bind json"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to bind JSON"})
 		return
 	}
 
@@ -46,22 +38,6 @@ func CreateSubscription(c *gin.Context) {
 		sub.UserID,
 		sub.ServiceName,
 	)
-
-	isUnique, err := isUniqueServiceName(0, sub.UserID, sub.ServiceName)
-	if err != nil {
-		log.Printf("[CreateSubscription] uniqueness check failed: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to validate"})
-		return
-	}
-	if !isUnique {
-		log.Printf(
-			"[CreateSubscription] subscription already exists for user_id=%s and service_name=%s\n",
-			sub.UserID,
-			sub.ServiceName,
-		)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "subscription already exists"})
-		return
-	}
 
 	if err := repository.DB.Create(&sub).Error; err != nil {
 		log.Printf("[CreateSubscription] DB create error: %v\n", err)
@@ -73,6 +49,14 @@ func CreateSubscription(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "created", "id": sub.ID})
 }
 
+// @Summary	Получить данные подписки по ID
+// @Produce	json
+// @Param		id	path		int	true	"ID подписки"	default	(1)
+// @Success	200	{object}	model.Subscription
+// @Failure	400	{object}	docs.ErrorResponse
+// @Failure	404	{object}	docs.ErrorResponse
+// @Failure	500	{object}	docs.ErrorResponse
+// @Router		/read/{id} [get]
 func ReadSubscription(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -100,6 +84,16 @@ func ReadSubscription(c *gin.Context) {
 	c.JSON(http.StatusOK, sub)
 }
 
+// @Summary	Обновить подписку по ID
+// @Accept		json
+// @Produce	json
+// @Param		id				path		int								true	"ID подписки"	default	(1)
+// @Param		subscription	body		docs.UpdateSubscriptionExample	true	"Новые данные подписки"
+// @Success	200				{object}	docs.MessageResponse
+// @Failure	400				{object}	docs.ErrorResponse
+// @Failure	404				{object}	docs.ErrorResponse
+// @Failure	500				{object}	docs.ErrorResponse
+// @Router		/update/{id} [put]
 func UpdateSubscription(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -113,46 +107,6 @@ func UpdateSubscription(c *gin.Context) {
 		log.Printf("[UpdateSubscription] JSON bind error: %v\n", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "failed to bind json"})
 		return
-	}
-
-	if userIDRaw, ok := input["user_id"]; ok {
-		if serviceNameRaw, ok2 := input["service_name"]; ok2 {
-			userIDStr, ok := userIDRaw.(string)
-			if !ok {
-				log.Println("[UpdateSubscription] user_id is not string")
-				c.JSON(http.StatusBadRequest, gin.H{"error": "user_id must be string"})
-				return
-			}
-			userID, err := uuid.Parse(userIDStr)
-			if err != nil {
-				log.Printf("[UpdateSubscription] invalid user_id: %v\n", err)
-				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user_id"})
-				return
-			}
-
-			serviceName, ok := serviceNameRaw.(string)
-			if !ok {
-				log.Println("[UpdateSubscription] service_name is not string")
-				c.JSON(http.StatusBadRequest, gin.H{"error": "service_name must be string"})
-				return
-			}
-
-			isUnique, err := isUniqueServiceName(id, userID, serviceName)
-			if err != nil {
-				log.Printf("[UpdateSubscription] uniqueness check error: %v\n", err)
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to validate"})
-				return
-			}
-			if !isUnique {
-				log.Printf(
-					"[UpdateSubscription] subscription already exists for user_id=%s and service_name=%s\n",
-					userID,
-					serviceName,
-				)
-				c.JSON(http.StatusBadRequest, gin.H{"error": "subscription already exists"})
-				return
-			}
-		}
 	}
 
 	log.Printf("[UpdateSubscription] updating subscription id=%d with data: %+v\n", id, input)
@@ -173,6 +127,14 @@ func UpdateSubscription(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "updated"})
 }
 
+// @Summary	Удалить подписку по ID
+// @Produce	json
+// @Param		id	path		int	true	"ID подписки"	default	(1)
+// @Success	200	{object}	docs.MessageResponse
+// @Failure	400	{object}	docs.ErrorResponse
+// @Failure	404	{object}	docs.ErrorResponse
+// @Failure	500	{object}	docs.ErrorResponse
+// @Router		/delete/{id} [delete]
 func DeleteSubscription(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -199,6 +161,14 @@ func DeleteSubscription(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "deleted"})
 }
 
+// @Summary	Получение списка подписок (есть фильтрация по ID пользователя и по названию сервиса)
+// @Produce	json
+// @Param		user_id			query		string	false	"ID пользователя"	default	(11111111-1111-1111-1111-111111111111)
+// @Param		service_name	query		string	false	"Название сервиса"	default	(Netflix)
+// @Success	200				{array}		model.Subscription
+// @Failure	500				{object}	docs.ErrorResponse
+// @Failure	404				{object}	docs.ErrorResponse
+// @Router		/list [get]
 func ListSubscriptions(c *gin.Context) {
 	userID := c.Query("user_id")
 	serviceName := c.Query("service_name")
@@ -233,6 +203,16 @@ func ListSubscriptions(c *gin.Context) {
 	c.JSON(http.StatusOK, subs)
 }
 
+// @Summary	Получение суммы стоимости всех подписок за выбранный период по ID пользователя и имени сервиса
+// @Produce	json
+// @Param		user_id			query		string	true	"ID пользователя"					default	(11111111-1111-1111-1111-111111111111)
+// @Param		service_name	query		string	true	"Название сервиса"					default	(Netflix)
+// @Param		period_start	query		string	true	"Начало периода в формате MM-YYYY"	default(06-2025)
+// @Param		period_end		query		string	true	"Конец периода в формате MM-YYYY"	default(08-2025)
+// @Success	200				{object}	docs.SumResponse
+// @Failure	400				{object}	docs.ErrorResponse
+// @Failure	500				{object}	docs.ErrorResponse
+// @Router		/sum [get]
 func SumSubscriptionsPrice(c *gin.Context) {
 	var sum int
 

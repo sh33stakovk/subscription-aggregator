@@ -3,11 +3,14 @@ package main
 import (
 	"log"
 	"os"
+	_ "subscription-aggregator/docs"
 	"subscription-aggregator/internal/handler"
 	"subscription-aggregator/internal/repository"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -31,6 +34,8 @@ func main() {
 	r.DELETE("/delete/:id", handler.DeleteSubscription)
 	r.GET("/list", handler.ListSubscriptions)
 	r.GET("/sum", handler.SumSubscriptionsPrice)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	port := os.Getenv("PORT")
 	if port == "" {
