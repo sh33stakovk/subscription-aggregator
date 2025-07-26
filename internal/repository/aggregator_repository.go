@@ -20,29 +20,32 @@ func InitAndMigrateDB() {
 		" port=" + os.Getenv("DB_PORT") +
 		" sslmode=disable"
 
+	log.Println("starting database connection...")
+
 	var err error
 	maxRetries := 10
 
-	for i := 0; i < maxRetries; i++ {
+	for i := 1; i <= maxRetries; i++ {
+		log.Printf("attempting database connection (%d/%d)", i, maxRetries)
 		DB, err = gorm.Open(postgres.Open(conStr))
 		if err == nil {
+			log.Println("database connection established")
 			break
 		}
-
-		log.Printf("failed to connect to database, attempt: %v/%v", i, maxRetries)
-		time.Sleep(time.Second * 2)
+		log.Printf("failed to connect to database: %v", err)
+		time.Sleep(2 * time.Second)
 	}
 
 	if DB == nil {
-		log.Fatal("unable to connect to database")
+		log.Fatal("unable to connect to database after retries")
 	}
 
-	log.Println("connected to database")
+	log.Println("starting auto migration...")
 
-	err = DB.AutoMigrate(model.Subscription{})
+	err = DB.AutoMigrate(&model.Subscription{})
 	if err != nil {
-		log.Fatalf("unable to migrate to database: %v", err.Error())
+		log.Fatalf("auto migration failed: %v", err)
 	}
 
-	log.Println("migrated to database")
+	log.Println("database migration completed")
 }
