@@ -18,8 +18,8 @@ import (
 // @Produce	json
 // @Param		subscription	body		swagger.SubscriptionExample	true	"Данные подписки"
 // @Success	200				{object}	swagger.MessageResponse
-// @Failure	400				{object}	swagger.ErrorResponse
-// @Failure	500				{object}	swagger.ErrorResponse
+// @Failure	400				{object}	swagger.ErrorResponse400
+// @Failure	500				{object}	swagger.ErrorResponse500
 // @Router		/create [post]
 func CreateSubscription(c *gin.Context) {
 	var sub model.Subscription
@@ -50,11 +50,11 @@ func CreateSubscription(c *gin.Context) {
 
 // @Summary	Получить данные подписки по ID
 // @Produce	json
-// @Param		id	path		int	true	"ID подписки"	default	(1)
+// @Param		id	path		int	true	"ID подписки"	default(1)
 // @Success	200	{object}	swagger.SubscriptionResponse
-// @Failure	400	{object}	swagger.ErrorResponse
-// @Failure	404	{object}	swagger.ErrorResponse
-// @Failure	500	{object}	swagger.ErrorResponse
+// @Failure	400	{object}	swagger.ErrorResponse400
+// @Failure	404	{object}	swagger.ErrorResponse404
+// @Failure	500	{object}	swagger.ErrorResponse500
 // @Router		/read/{id} [get]
 func ReadSubscription(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -86,12 +86,12 @@ func ReadSubscription(c *gin.Context) {
 // @Summary	Обновить подписку по ID
 // @Accept		json
 // @Produce	json
-// @Param		id				path		int									true	"ID подписки"	default	(1)
+// @Param		id				path		int									true	"ID подписки"	default(1)
 // @Param		subscription	body		swagger.UpdateSubscriptionExample	true	"Новые данные подписки"
 // @Success	200				{object}	swagger.MessageResponse
-// @Failure	400				{object}	swagger.ErrorResponse
-// @Failure	404				{object}	swagger.ErrorResponse
-// @Failure	500				{object}	swagger.ErrorResponse
+// @Failure	400				{object}	swagger.ErrorResponse400
+// @Failure	404				{object}	swagger.ErrorResponse404
+// @Failure	500				{object}	swagger.ErrorResponse500
 // @Router		/update/{id} [put]
 func UpdateSubscription(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -128,11 +128,11 @@ func UpdateSubscription(c *gin.Context) {
 
 // @Summary	Удалить подписку по ID
 // @Produce	json
-// @Param		id	path		int	true	"ID подписки"	default	(1)
+// @Param		id	path		int	true	"ID подписки"	default(1)
 // @Success	200	{object}	swagger.MessageResponse
-// @Failure	400	{object}	swagger.ErrorResponse
-// @Failure	404	{object}	swagger.ErrorResponse
-// @Failure	500	{object}	swagger.ErrorResponse
+// @Failure	400	{object}	swagger.ErrorResponse400
+// @Failure	404	{object}	swagger.ErrorResponse404
+// @Failure	500	{object}	swagger.ErrorResponse500
 // @Router		/delete/{id} [delete]
 func DeleteSubscription(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -162,11 +162,11 @@ func DeleteSubscription(c *gin.Context) {
 
 // @Summary	Получение списка подписок (есть фильтрация по ID пользователя и по названию сервиса)
 // @Produce	json
-// @Param		user_id			query		string	false	"ID пользователя"	default	(11111111-1111-1111-1111-111111111111)
-// @Param		service_name	query		string	false	"Название сервиса"	default	(Netflix)
+// @Param		user_id			query		string	false	"ID пользователя"	default(11111111-1111-1111-1111-111111111111)
+// @Param		service_name	query		string	false	"Название сервиса"	default(Netflix)
 // @Success	200				{array}		swagger.SubscriptionResponse
-// @Failure	500				{object}	swagger.ErrorResponse
-// @Failure	404				{object}	swagger.ErrorResponse
+// @Failure	500				{object}	swagger.ErrorResponse500
+// @Failure	404				{object}	swagger.ErrorResponse404
 // @Router		/list [get]
 func ListSubscriptions(c *gin.Context) {
 	userID := c.Query("user_id")
@@ -204,13 +204,13 @@ func ListSubscriptions(c *gin.Context) {
 
 // @Summary	Получение суммы стоимости всех подписок за выбранный период по ID пользователя и имени сервиса
 // @Produce	json
-// @Param		user_id			query		string	true	"ID пользователя"					default	(11111111-1111-1111-1111-111111111111)
-// @Param		service_name	query		string	true	"Название сервиса"					default	(Netflix)
+// @Param		user_id			query		string	true	"ID пользователя"					default(11111111-1111-1111-1111-111111111111)
+// @Param		service_name	query		string	true	"Название сервиса"					default(Netflix)
 // @Param		period_start	query		string	true	"Начало периода в формате MM-YYYY"	default(06-2025)
 // @Param		period_end		query		string	true	"Конец периода в формате MM-YYYY"	default(08-2025)
 // @Success	200				{object}	swagger.SumResponse
-// @Failure	400				{object}	swagger.ErrorResponse
-// @Failure	500				{object}	swagger.ErrorResponse
+// @Failure	400				{object}	swagger.ErrorResponse400
+// @Failure	500				{object}	swagger.ErrorResponse500
 // @Router		/sum [get]
 func SumSubscriptionsPrice(c *gin.Context) {
 	var sum int

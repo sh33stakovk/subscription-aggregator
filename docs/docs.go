@@ -45,13 +45,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse400"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse500"
                         }
                     }
                 }
@@ -66,6 +66,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "ID подписки",
                         "name": "id",
                         "in": "path",
@@ -82,19 +83,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse400"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse500"
                         }
                     }
                 }
@@ -109,12 +110,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "11111111-1111-1111-1111-111111111111",
                         "description": "ID пользователя",
                         "name": "user_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "default": "Netflix",
                         "description": "Название сервиса",
                         "name": "service_name",
                         "in": "query"
@@ -133,13 +136,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse500"
                         }
                     }
                 }
@@ -154,6 +157,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "ID подписки",
                         "name": "id",
                         "in": "path",
@@ -170,19 +174,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse400"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse500"
                         }
                     }
                 }
@@ -197,6 +201,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "11111111-1111-1111-1111-111111111111",
                         "description": "ID пользователя",
                         "name": "user_id",
                         "in": "query",
@@ -204,6 +209,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "default": "Netflix",
                         "description": "Название сервиса",
                         "name": "service_name",
                         "in": "query",
@@ -236,13 +242,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse400"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse500"
                         }
                     }
                 }
@@ -260,6 +266,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "ID подписки",
                         "name": "id",
                         "in": "path",
@@ -285,19 +292,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse400"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse404"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/swagger.ErrorResponse"
+                            "$ref": "#/definitions/swagger.ErrorResponse500"
                         }
                     }
                 }
@@ -305,12 +312,30 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "swagger.ErrorResponse": {
+        "swagger.ErrorResponse400": {
             "type": "object",
             "properties": {
                 "error": {
                     "type": "string",
-                    "example": "failed to bind json"
+                    "example": "invalid {id/request/json}"
+                }
+            }
+        },
+        "swagger.ErrorResponse404": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "record not found in db"
+                }
+            }
+        },
+        "swagger.ErrorResponse500": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "failed to {create/find/update/delete} record in db"
                 }
             }
         },
@@ -323,7 +348,7 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string",
-                    "example": "created"
+                    "example": "{created/updated/deleted}"
                 }
             }
         },
@@ -351,10 +376,6 @@ const docTemplate = `{
         "swagger.SubscriptionResponse": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string",
-                    "example": "2025-07-26T12:34:56Z"
-                },
                 "id": {
                     "type": "integer",
                     "example": 1
@@ -371,10 +392,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "07-2025"
                 },
-                "updated_at": {
-                    "type": "string",
-                    "example": "2025-07-26T12:34:56Z"
-                },
                 "user_id": {
                     "type": "string",
                     "example": "11111111-1111-1111-1111-111111111111"
@@ -386,7 +403,7 @@ const docTemplate = `{
             "properties": {
                 "sum_price": {
                     "type": "integer",
-                    "example": 2997
+                    "example": 999
                 }
             }
         },
